@@ -73,18 +73,20 @@ async function main() {
                 // Create a new gateway for connecting to our peer node.
                 const gateway = new Gateway();
                 await gateway.connect(ccp, { wallet, identity: 'insuranceCompany01', discovery: { enabled: true, asLocalhost: true } });
-        
+                console.log('\n gateway is here ', gateway, '\n\n')
+                
                 // Get the network (channel) our contract is deployed to.
                 const network = await gateway.getNetwork('mychannel');
-        
+                console.log('\n network is here ', network, '\n\n')
                 // Get the contract from the network.
                 const contract = network.getContract('ehrChainCode');
-
+                console.log('\n contract is here ', contract, '\n\n')
+                
                 let agentId="insuranceAgent02";
                 let insuranceCompany="insuranceCompany01-XYZ";
                 let name="Gaurave";
                 let city="Amravati";
-
+                
                 const res = await contract.submitTransaction('onboardInsurance', agentId, insuranceCompany, name, city);
                 console.log("/n === Onboard Agent success === /n", res.toString());
         
