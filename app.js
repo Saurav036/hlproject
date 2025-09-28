@@ -8,7 +8,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({origins:['*']}));
 
 app.listen(5000, function () {
     console.log('Node SDK server is running on 5000 port :) ');
