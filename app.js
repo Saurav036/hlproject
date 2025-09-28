@@ -15,6 +15,7 @@ app.listen(5000, function () {
 });
 
 app.get('/status', async function (req, res, next) {
+    console.log('server is up')
     res.send("Server is up.");
 })
 
