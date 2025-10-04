@@ -40,7 +40,7 @@ const getQuery = async (fcn, args, userId) => {
     // Create a new gateway for connecting to our peer node.
     const gateway = new Gateway();
    
-    await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: true } });
+    await gateway.connect(ccp, { wallet, identity: userId, discovery: { enabled: true, asLocalhost: false } });
     
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork(channelName);

@@ -72,7 +72,7 @@ async function main() {
         // -----------------------Create Wallet with default balance on ledger------------------ 
                 // Create a new gateway for connecting to our peer node.
                 const gateway = new Gateway();
-                await gateway.connect(ccp, { wallet, identity: 'Hospital01', discovery: { enabled: true, asLocalhost: true } });
+                await gateway.connect(ccp, { wallet, identity: 'Hospital01', discovery: { enabled: true, asLocalhost: false } });
         
                 // Get the network (channel) our contract is deployed to.
                 const network = await gateway.getNetwork('mychannel');
