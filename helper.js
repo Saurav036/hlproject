@@ -89,7 +89,7 @@ const registerUser = async (adminID, doctorId, userID, userRole, args) => {
         const network = await gateway.getNetwork('mychannel');
 
         // Get the contract from the network.
-        const contract = network.getContract('ehrChainCode');
+        const contract = network.getContract('basic');
 
         const args01 = {
             patientId:userID,
