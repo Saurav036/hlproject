@@ -53,11 +53,13 @@ async function main() {
             role: 'client',
             attrs: [{ name: 'role', value: 'hospital', ecert: true },{ name: 'uuid', value: 'Hospital01', ecert: true }],
         }, adminUser);
+        console.log('\nsecret is here ==', secret)
         const enrollment = await ca.enroll({
             enrollmentID: 'Hospital01',
             enrollmentSecret: secret,
             attr_reqs: [{ name: "role", optional: false },{ name: "uuid", optional: false }]
         });
+        console.log('\nenrollment is here ==', enrollment)
         const x509Identity = {
             credentials: {
                 certificate: enrollment.certificate,
@@ -66,6 +68,7 @@ async function main() {
             mspId: 'Org1MSP',
             type: 'X.509',
         };
+        console.log('\nx509Identity is here ==', x509Identity)
         await wallet.put('Hospital01', x509Identity);
         console.log('Successfully registered and enrolled hospitalAdmin user "Hospital01" and imported it into the wallet');
     } catch (error) {
