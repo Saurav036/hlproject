@@ -102,7 +102,7 @@ async function main() {
                 gateway.disconnect();
 
     } catch (error) {
-        console.error(`Failed to register user "Doctor-Rama04": ${error}`);
+        console.error(`Failed to register user "Dr.verma": ${error}`);
         process.exit(1);
       }
 }

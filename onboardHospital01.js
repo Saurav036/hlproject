@@ -31,7 +31,7 @@ async function main() {
         const userIdentity = await wallet.get('Hospital01');
         if (userIdentity) {
             console.log('An identity for the user "Hospital01" already exists in the wallet');
-            return;
+            // return;
         }
 
         // Check to see if we've already enrolled the hospitalAdmin user.
@@ -39,7 +39,7 @@ async function main() {
         if (!adminIdentity) {
             console.log('An identity for the hospitalAdmin user "hospitalAdmin" does not exist in the wallet');
             console.log('Run the enrollAdmin.js application before retrying');
-            return;
+            // return;
         }
 
         // build a user object for authenticating with the CA
