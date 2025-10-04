@@ -23,10 +23,11 @@ app.get('/status', async function (req, res, next) {
 app.post('/registerPatient', async function (req, res, next) {
     try {
         let role; 
-        let {adminId, doctorId, userId, name, dob, city} = req.body;
-
+        
+        
         // check request body
         console.log("Received request:", req.body);
+        let {adminId, doctorId, userId, name, dob, city} = req.body;
         if (req.body.userId && req.body.adminId) {
             userId = req.body.userId;
             
