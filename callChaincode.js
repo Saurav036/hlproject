@@ -78,7 +78,7 @@ async function main() {
                 const network = await gateway.getNetwork('mychannel');
         
                 // Get the contract from the network.
-                const contract = network.getContract('ehrChainCode02');
+                const contract = network.getContract('ehrChainCode');
 
                 let agentId="insuranceAgent02";
                 let insuranceCompany="insuranceCompany01-XYZ";
