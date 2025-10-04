@@ -33,7 +33,7 @@ const invokeTransaction = async (fcn, args, userID) => {
        
     // Create a new gateway for connecting to our peer node.
     const gateway = new Gateway();
-    await gateway.connect(ccp, { wallet, identity: userID, discovery: { enabled: true, asLocalhost: false } });
+    await gateway.connect(ccp, { wallet, identity: userID, discovery: { enabled: true, asLocalhost: true } });
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork(channelName);
     // Get the contract from the network.
