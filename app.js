@@ -15,7 +15,7 @@ const query = require('./query');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors({ origins: ['*'] }));
+app.use(cors({ origins: ['*', 'http://localhost:3000', 'http://localhost:3001'] }));
 
 // Initialize Supply Chain Organizations
 async function initFarmerOrg() {
