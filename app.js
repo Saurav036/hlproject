@@ -101,6 +101,46 @@ app.get('/init', async (req, res, next) => {
     }
 });
 
+const users = [];
+
+// --- Routes ---
+
+/**
+ * @route   POST /register
+ * @desc    Register a new user
+ * @access  Public
+ */
+app.post('/register', (req, res) => {
+    const { adminID, userID, userRole } = req.body;
+
+    // Basic validation
+    if (!userID || !userRole) {
+        return res.status(400).json({ message: 'UserID and UserRole are required.' });
+    }
+
+    // Check if user already exists
+    const existingUser = users.find(user => user.userID === userID);
+    if (existingUser) {
+        return res.status(409).json({ message: 'User already exists.' });
+    }
+
+    // In a real app, you would validate the adminID here to ensure
+    // only an admin can register new users. We'll skip that for this example.
+    console.log(`Registration initiated by admin: ${adminID}`);
+
+    const newUser = {
+        userID,
+        userRole,
+    };
+
+    users.push(newUser);
+    console.log('Current users:', users);
+
+    res.status(201).json({
+        message: 'User registered successfully',
+        userID: newUser.userID,
+    });
+});
 // Register a new participant in the supply chain
 app.post('/registerParticipant', async (req, res, next) => {
     try {
