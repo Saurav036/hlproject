@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const getQuery = async (fcn, args, userId) => {
+    console.log('\nget query ',fcn, args, userID)
     let gateway;
     try {
         // Get wallet
@@ -58,7 +59,7 @@ const getQuery = async (fcn, args, userId) => {
         const contract = network.getContract('productTrace');
 
         console.log(`Executing query: ${fcn} with args:`, args);
-
+        console.log('contract', contract)
         // Execute query based on function name
         let result;
         const argsString = JSON.stringify(args);

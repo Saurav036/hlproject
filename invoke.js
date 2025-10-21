@@ -5,6 +5,7 @@ const path = require('path');
 const { Wallets, Gateway } = require('fabric-network');
 
 const invokeTransaction = async (fcn, args, userID) => {
+    console.log('\nInvoke tranx',fcn, args, userID)
     let gateway;
     try {
         // Get wallet
@@ -51,7 +52,7 @@ const invokeTransaction = async (fcn, args, userID) => {
         const contract = network.getContract('productTrace');
 
         console.log(`Invoking transaction: ${fcn} with args:`, args);
-
+        console.log(contract)
         // Submit transaction
         let result;
         const argsString = JSON.stringify(args);
@@ -146,6 +147,7 @@ const invokeTransaction = async (fcn, args, userID) => {
 
 // Batch transaction submission for efficiency
 const invokeBatchTransaction = async (transactions, userID) => {
+    console.log('\nInvoke batch tranx',transactions, userID)
     let gateway;
     try {
         const walletPath = path.join(process.cwd(), 'wallet');
