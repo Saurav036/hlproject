@@ -29,7 +29,7 @@ async function registerOrg1Admin() {
         // Load the network configuration
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',
@@ -97,7 +97,7 @@ async function registerOrg2Admin() {
         // Load the network configuration
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',
@@ -164,7 +164,7 @@ async function registerSystemAdmin() {
         // Using Org1 as the base for system admin
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',

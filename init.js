@@ -43,7 +43,7 @@ async function main() {
 async function initOrganization(orgName, adminName) {
     const ccpPath = path.resolve(
         __dirname,
-        '../..',
+        '..',
         'fabric-samples',
         'test-network',
         'organizations',
@@ -150,7 +150,7 @@ async function registerParticipant(participant) {
     try {
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',
@@ -263,7 +263,7 @@ async function initChaincode() {
     try {
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',

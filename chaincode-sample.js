@@ -7,7 +7,7 @@
 
 const { Contract } = require('fabric-contract-api');
 
-class ProductTraceContract extends Contract {
+class ProductTrace extends Contract {
 
     // Initialize the ledger with sample data
     async initLedger(ctx) {
@@ -414,4 +414,4 @@ class ProductTraceContract extends Contract {
     }
 }
 
-module.exports = ProductTraceContract;
+module.exports = ProductTrace;

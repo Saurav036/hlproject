@@ -144,7 +144,7 @@ async function registerParticipant(participant, verbose = true) {
         // Load connection profile
         const ccpPath = path.resolve(
             __dirname,
-            '../..',
+            '..',
             'fabric-samples',
             'test-network',
             'organizations',
