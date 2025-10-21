@@ -11,11 +11,15 @@ const { Wallets } = require('fabric-network');
 const helper = require('./helper');
 const invoke = require('./invoke');
 const query = require('./query');
+const { generateToken, verifyToken, requireRole, getAllRoles } = require('./authMiddleware');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors({ origins: ['*', 'http://localhost:3000', 'http://localhost:3001', 'http://90.247.172.96:3001/'] }));
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://90.247.172.96:3001'],
+    credentials: true
+}));
 
 // Initialize Supply Chain Organizations
 async function initFarmerOrg() {
@@ -106,6 +110,19 @@ const users = [];
 // --- Routes ---
 
 /**
+ * @route   GET /roles
+ * @desc    Get all role definitions and permissions
+ * @access  Public
+ */
+app.get('/roles', (req, res) => {
+    const roles = getAllRoles();
+    res.status(200).json({
+        success: true,
+        roles
+    });
+});
+
+/**
  * @route   POST /register
  * @desc    Register a new user
  * @access  Public
@@ -169,17 +186,39 @@ app.post('/registerParticipant', async (req, res, next) => {
     }
 });
 
-// Login participant
+// Login participant with JWT
 app.post('/login', async (req, res, next) => {
     try {
         const { userId } = req.body;
-        
+
         if (!userId) {
             throw new Error('Missing required field: userId');
         }
 
         const result = await helper.login(userId);
-        res.status(200).json(result);
+
+        if (result.success) {
+            // Generate JWT token
+            const token = generateToken(
+                result.userID,
+                result.participant.role,
+                {
+                    organizationName: result.participant.organizationName,
+                    location: result.participant.location
+                }
+            );
+
+            res.status(200).json({
+                success: true,
+                token,
+                userID: result.userID,
+                userRole: result.participant.role,
+                participant: result.participant,
+                message: 'Login successful'
+            });
+        } else {
+            res.status(result.statusCode || 401).json(result);
+        }
     } catch (error) {
         console.error('Error during login:', error);
         next(error);
@@ -187,11 +226,12 @@ app.post('/login', async (req, res, next) => {
 });
 
 // Create a new product (Farmers only)
-app.post('/createProduct', async (req, res, next) => {
+app.post('/createProduct', verifyToken, requireRole('farmer', 'admin'), async (req, res, next) => {
     try {
-        const { userId, productName, productType, quantity, unit, harvestDate, location, certifications } = req.body;
-        
-        if (!userId || !productName || !productType || !quantity) {
+        const { productName, productType, quantity, unit, harvestDate, location, certifications } = req.body;
+        const userId = req.user.userID; // Get from JWT token
+
+        if (!productName || !productType || !quantity) {
             throw new Error('Missing required fields');
         }
 
@@ -214,12 +254,13 @@ app.post('/createProduct', async (req, res, next) => {
     }
 });
 
-// Update product location (Shippers)
-app.post('/updateLocation', async (req, res, next) => {
+// Update product location (Shippers, Distributors)
+app.post('/updateLocation', verifyToken, requireRole('shipper', 'distributor', 'admin'), async (req, res, next) => {
     try {
-        const { userId, productId, location, temperature, humidity, timestamp } = req.body;
-        
-        if (!userId || !productId || !location) {
+        const { productId, location, temperature, humidity, timestamp } = req.body;
+        const userId = req.user.userID;
+
+        if (!productId || !location) {
             throw new Error('Missing required fields');
         }
 
@@ -239,12 +280,13 @@ app.post('/updateLocation', async (req, res, next) => {
     }
 });
 
-// Transfer ownership
-app.post('/transferOwnership', async (req, res, next) => {
+// Transfer ownership (All authenticated users can transfer their own products)
+app.post('/transferOwnership', verifyToken, async (req, res, next) => {
     try {
-        const { userId, productId, newOwnerId, price, notes } = req.body;
-        
-        if (!userId || !productId || !newOwnerId) {
+        const { productId, newOwnerId, price, notes } = req.body;
+        const userId = req.user.userID;
+
+        if (!productId || !newOwnerId) {
             throw new Error('Missing required fields');
         }
 
@@ -264,12 +306,13 @@ app.post('/transferOwnership', async (req, res, next) => {
     }
 });
 
-// Process product (Manufacturers)
-app.post('/processProduct', async (req, res, next) => {
+// Process product (Manufacturers only)
+app.post('/processProduct', verifyToken, requireRole('manufacturer', 'admin'), async (req, res, next) => {
     try {
-        const { userId, inputProductIds, outputProductName, outputQuantity, processingDetails } = req.body;
-        
-        if (!userId || !inputProductIds || !outputProductName || !outputQuantity) {
+        const { inputProductIds, outputProductName, outputQuantity, processingDetails } = req.body;
+        const userId = req.user.userID;
+
+        if (!inputProductIds || !outputProductName || !outputQuantity) {
             throw new Error('Missing required fields');
         }
 
@@ -289,12 +332,13 @@ app.post('/processProduct', async (req, res, next) => {
     }
 });
 
-// Add quality certification
-app.post('/addCertification', async (req, res, next) => {
+// Add quality certification (Manufacturers, Retailers)
+app.post('/addCertification', verifyToken, requireRole('manufacturer', 'retailer', 'admin'), async (req, res, next) => {
     try {
-        const { userId, productId, certificationType, certificationBody, expiryDate, details } = req.body;
-        
-        if (!userId || !productId || !certificationType || !certificationBody) {
+        const { productId, certificationType, certificationBody, expiryDate, details } = req.body;
+        const userId = req.user.userID;
+
+        if (!productId || !certificationType || !certificationBody) {
             throw new Error('Missing required fields');
         }
 
@@ -315,13 +359,13 @@ app.post('/addCertification', async (req, res, next) => {
     }
 });
 
-// Query product by ID
-app.get('/getProduct/:productId', async (req, res, next) => {
+// Query product by ID (Authenticated users)
+app.get('/getProduct/:productId', verifyToken, async (req, res, next) => {
     try {
         const { productId } = req.params;
-        const { userId } = req.query;
-        
-        if (!userId || !productId) {
+        const userId = req.user.userID;
+
+        if (!productId) {
             throw new Error('Missing required parameters');
         }
 
@@ -333,13 +377,13 @@ app.get('/getProduct/:productId', async (req, res, next) => {
     }
 });
 
-// Get product history
-app.get('/getProductHistory/:productId', async (req, res, next) => {
+// Get product history (Authenticated users)
+app.get('/getProductHistory/:productId', verifyToken, async (req, res, next) => {
     try {
         const { productId } = req.params;
-        const { userId } = req.query;
-        
-        if (!userId || !productId) {
+        const userId = req.user.userID;
+
+        if (!productId) {
             throw new Error('Missing required parameters');
         }
 
@@ -351,12 +395,13 @@ app.get('/getProductHistory/:productId', async (req, res, next) => {
     }
 });
 
-// Get all products by owner
-app.get('/getProductsByOwner', async (req, res, next) => {
+// Get all products by owner (Authenticated users)
+app.get('/getProductsByOwner', verifyToken, async (req, res, next) => {
     try {
-        const { userId, ownerId } = req.query;
-        
-        if (!userId || !ownerId) {
+        const { ownerId } = req.query;
+        const userId = req.user.userID;
+
+        if (!ownerId) {
             throw new Error('Missing required parameters');
         }
 
