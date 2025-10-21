@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const getQuery = async (fcn, args, userId) => {
-    console.log('\nget query ',fcn, args, userID)
+    console.log('\nget query ',fcn, args, userId)
     let gateway;
     try {
         // Get wallet
