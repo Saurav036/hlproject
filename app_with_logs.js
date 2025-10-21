@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
     origin: ['*','http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://90.247.172.96:3001'],
-    credentials:false
+    credentials:true
 }));
 
 // Logging middleware - logs all incoming requests
