@@ -168,6 +168,7 @@ app.get('/roles', (req, res) => {
  * @access  Public
  */
 app.post('/register', (req, res) => {
+    console.log(req.body)
     console.log('[POST /register] User registration attempt');
     const { adminID, userID, userRole } = req.body;
 
