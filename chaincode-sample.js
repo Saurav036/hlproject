@@ -50,7 +50,7 @@ class ProductTrace extends Contract {
         const args = JSON.parse(argsStr);
         
         // Validate caller's role
-        const clientMSPID = ctx.clientIdentity.getMSPID();
+        // const clientMSPID = ctx.clientIdentity.getMSPID();
         const role = await this.getCallerRole(ctx);
         
         if (role !== 'farmer' && role !== 'manufacturer') {

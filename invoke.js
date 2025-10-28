@@ -52,7 +52,7 @@ const invokeTransaction = async (fcn, args, userID) => {
         const contract = network.getContract('productTrace');
 
         console.log(`Invoking transaction: ${fcn} with args:`, args);
-        console.log(contract)
+        // console.log(contract)
         // Submit transaction
         let result;
         const argsString = JSON.stringify(args);

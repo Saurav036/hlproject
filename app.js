@@ -285,7 +285,7 @@ app.post('/createProduct', verifyToken, requireRole('farmer', 'admin'), async (r
     try {
         const { productName, productType, quantity, unit, harvestDate, location, certifications } = req.body;
         const userId = req.user.userID;
-        console.log('[POST /createProduct] User:', userId, '| Role:', req.user.userRole);
+        console.log('[POST /createProduct] User:', userId, '| Role:', req.user.userRole, req.user);
 
         if (!productName || !productType || !quantity) {
             console.log('[POST /createProduct] ❌ Missing required fields');
