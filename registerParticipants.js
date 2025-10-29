@@ -25,7 +25,7 @@ const colors = {
 // Default participants to register
 const DEFAULT_PARTICIPANTS = [
     {
-        id: 'admin',
+        id: 'sysadmin',
         role: 'admin',
         admin: 'farmerAdmin',
         org: 'Org1',

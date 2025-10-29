@@ -179,7 +179,7 @@ class ProductTrace extends Contract {
                 productId: 'PROD000006',
                 productName: 'Organic Apples',
                 productType: 'fruit',
-                currentOwner: 'admin',
+                currentOwner: 'sysadmin',
                 quantity: 800,
                 unit: 'kg',
                 status: 'PACKAGED',
@@ -200,7 +200,7 @@ class ProductTrace extends Contract {
                     {
                         action: 'CREATED',
                         timestamp: '2024-01-25T09:00:00Z',
-                        actor: 'admin',
+                        actor: 'sysadmin',
                         details: 'Product created by admin'
                     }
                 ]
@@ -227,7 +227,7 @@ class ProductTrace extends Contract {
     async initParticipants(ctx) {
         const participants = [
             {
-                participantId: 'admin',
+                participantId: 'sysadmin',
                 role: 'admin',
                 organizationName: 'WyldTrace Admin',
                 location: 'Headquarters',
