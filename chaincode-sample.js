@@ -392,11 +392,14 @@ class ProductTrace extends Contract {
             console.log('Warning: Role not properly set, allowing product creation for testing');
         }
 
+        // Get the actual userID (not the full certificate DN)
+        const userId = this.getUserId(ctx);
+
         const product = {
             productId: productId,
             productName: args.productName,
             productType: args.productType,
-            currentOwner: args.currentOwner || ctx.clientIdentity.getID() || 'unknown',
+            currentOwner: args.currentOwner || userId,
             quantity: args.quantity,
             unit: args.unit || 'kg',
             status: 'CREATED',
@@ -412,7 +415,7 @@ class ProductTrace extends Contract {
                 {
                     action: 'CREATED',
                     timestamp: timestamp,
-                    actor: ctx.clientIdentity.getID() || 'system',
+                    actor: userId,
                     details: `Product created by ${role || 'unknown'}`
                 }
             ]
@@ -449,7 +452,7 @@ class ProductTrace extends Contract {
         const oldStatus = product.status;
 
         // Verify current owner (simplified for testing)
-        const callerId = ctx.clientIdentity.getID() || 'system';
+        const callerId = this.getUserId(ctx);
         if (product.currentOwner !== callerId && callerId !== 'system') {
             console.log(`Warning: Ownership verification bypassed for testing. Current owner: ${product.currentOwner}, Caller: ${callerId}`);
         }
@@ -541,7 +544,7 @@ class ProductTrace extends Contract {
         product.history.push({
             action: 'LOCATION_UPDATED',
             timestamp: timestamp,
-            actor: ctx.clientIdentity.getID() || 'system',
+            actor: this.getUserId(ctx),
             details: {
                 location: location,
                 temperature: temperature,
@@ -573,7 +576,7 @@ class ProductTrace extends Contract {
             console.log('Warning: Role check bypassed for testing');
         }
 
-        const callerId = ctx.clientIdentity.getID() || 'system';
+        const callerId = this.getUserId(ctx);
         
         // Get deterministic timestamp
         const txTimestamp = ctx.stub.getTxTimestamp();
@@ -639,7 +642,7 @@ class ProductTrace extends Contract {
         const timestamp = new Date(txTimestamp.seconds.low * 1000).toISOString();
 
         // Verify ownership (simplified for testing)
-        const callerId = ctx.clientIdentity.getID() || 'system';
+        const callerId = this.getUserId(ctx);
         if (product.currentOwner !== callerId && callerId !== 'system') {
             console.log('Warning: Ownership check bypassed for testing');
         }
@@ -803,32 +806,42 @@ class ProductTrace extends Contract {
         const args = JSON.parse(argsStr);
         const { status } = args;
 
+        console.log(`[getProductsByStatus] Fetching products with status: ${status}`);
+
         const iterator = await ctx.stub.getStateByPartialCompositeKey('status~product', [status]);
         const products = [];
 
         try {
             while (true) {
                 const result = await iterator.next();
-                
-                if (result.value) {
-                    // Extract productId from composite key
-                    const compositeKey = ctx.stub.splitCompositeKey(result.key);
-                    const productId = compositeKey.attributes[1];
-                    
-                    // Get the actual product
-                    const productBytes = await ctx.stub.getState(productId);
-                    if (productBytes && productBytes.length > 0) {
-                        products.push(JSON.parse(productBytes.toString()));
-                    }
-                }
-                
+
                 if (result.done) {
                     await iterator.close();
+                    console.log(`[getProductsByStatus] Found ${products.length} products with status ${status}`);
                     break;
+                }
+
+                if (result.value && result.value.key) {
+                    try {
+                        // Extract productId from composite key
+                        const compositeKey = ctx.stub.splitCompositeKey(result.value.key);
+                        const productId = compositeKey.attributes[1];
+
+                        // Get the actual product
+                        const productBytes = await ctx.stub.getState(productId);
+                        if (productBytes && productBytes.length > 0) {
+                            const product = JSON.parse(productBytes.toString());
+                            products.push(product);
+                        }
+                    } catch (e) {
+                        console.error(`[getProductsByStatus] Error parsing product: ${e.message}`);
+                        continue;
+                    }
                 }
             }
         } catch (err) {
-            console.error(`Error getting products by status: ${err}`);
+            console.error(`[getProductsByStatus] Error: ${err}`);
+            throw new Error(`Failed to get products by status: ${err.message}`);
         }
 
         return JSON.stringify(products);
@@ -839,32 +852,42 @@ class ProductTrace extends Contract {
         const args = JSON.parse(argsStr);
         const { productType } = args;
 
+        console.log(`[getProductsByType] Fetching products of type: ${productType}`);
+
         const iterator = await ctx.stub.getStateByPartialCompositeKey('type~product', [productType]);
         const products = [];
 
         try {
             while (true) {
                 const result = await iterator.next();
-                
-                if (result.value) {
-                    // Extract productId from composite key
-                    const compositeKey = ctx.stub.splitCompositeKey(result.key);
-                    const productId = compositeKey.attributes[1];
-                    
-                    // Get the actual product
-                    const productBytes = await ctx.stub.getState(productId);
-                    if (productBytes && productBytes.length > 0) {
-                        products.push(JSON.parse(productBytes.toString()));
-                    }
-                }
-                
+
                 if (result.done) {
                     await iterator.close();
+                    console.log(`[getProductsByType] Found ${products.length} products of type ${productType}`);
                     break;
+                }
+
+                if (result.value && result.value.key) {
+                    try {
+                        // Extract productId from composite key
+                        const compositeKey = ctx.stub.splitCompositeKey(result.value.key);
+                        const productId = compositeKey.attributes[1];
+
+                        // Get the actual product
+                        const productBytes = await ctx.stub.getState(productId);
+                        if (productBytes && productBytes.length > 0) {
+                            const product = JSON.parse(productBytes.toString());
+                            products.push(product);
+                        }
+                    } catch (e) {
+                        console.error(`[getProductsByType] Error parsing product: ${e.message}`);
+                        continue;
+                    }
                 }
             }
         } catch (err) {
-            console.error(`Error getting products by type: ${err}`);
+            console.error(`[getProductsByType] Error: ${err}`);
+            throw new Error(`Failed to get products by type: ${err.message}`);
         }
 
         return JSON.stringify(products);
@@ -875,32 +898,42 @@ class ProductTrace extends Contract {
         const args = JSON.parse(argsStr);
         const { location } = args;
 
+        console.log(`[getProductsByLocation] Fetching products at location: ${location}`);
+
         const iterator = await ctx.stub.getStateByPartialCompositeKey('location~product', [location]);
         const products = [];
 
         try {
             while (true) {
                 const result = await iterator.next();
-                
-                if (result.value) {
-                    // Extract productId from composite key
-                    const compositeKey = ctx.stub.splitCompositeKey(result.key);
-                    const productId = compositeKey.attributes[1];
-                    
-                    // Get the actual product
-                    const productBytes = await ctx.stub.getState(productId);
-                    if (productBytes && productBytes.length > 0) {
-                        products.push(JSON.parse(productBytes.toString()));
-                    }
-                }
-                
+
                 if (result.done) {
                     await iterator.close();
+                    console.log(`[getProductsByLocation] Found ${products.length} products at location ${location}`);
                     break;
+                }
+
+                if (result.value && result.value.key) {
+                    try {
+                        // Extract productId from composite key
+                        const compositeKey = ctx.stub.splitCompositeKey(result.value.key);
+                        const productId = compositeKey.attributes[1];
+
+                        // Get the actual product
+                        const productBytes = await ctx.stub.getState(productId);
+                        if (productBytes && productBytes.length > 0) {
+                            const product = JSON.parse(productBytes.toString());
+                            products.push(product);
+                        }
+                    } catch (e) {
+                        console.error(`[getProductsByLocation] Error parsing product: ${e.message}`);
+                        continue;
+                    }
                 }
             }
         } catch (err) {
-            console.error(`Error getting products by location: ${err}`);
+            console.error(`[getProductsByLocation] Error: ${err}`);
+            throw new Error(`Failed to get products by location: ${err.message}`);
         }
 
         return JSON.stringify(products);
@@ -954,32 +987,42 @@ class ProductTrace extends Contract {
         const args = JSON.parse(argsStr);
         const { role } = args;
 
+        console.log(`[getParticipantsByRole] Fetching participants with role: ${role}`);
+
         const iterator = await ctx.stub.getStateByPartialCompositeKey('role~participant', [role]);
         const participants = [];
 
         try {
             while (true) {
                 const result = await iterator.next();
-                
-                if (result.value) {
-                    // Extract participantId from composite key
-                    const compositeKey = ctx.stub.splitCompositeKey(result.key);
-                    const participantId = compositeKey.attributes[1];
-                    
-                    // Get the actual participant
-                    const participantBytes = await ctx.stub.getState(`participant_${participantId}`);
-                    if (participantBytes && participantBytes.length > 0) {
-                        participants.push(JSON.parse(participantBytes.toString()));
-                    }
-                }
-                
+
                 if (result.done) {
                     await iterator.close();
+                    console.log(`[getParticipantsByRole] Found ${participants.length} participants with role ${role}`);
                     break;
+                }
+
+                if (result.value && result.value.key) {
+                    try {
+                        // Extract participantId from composite key
+                        const compositeKey = ctx.stub.splitCompositeKey(result.value.key);
+                        const participantId = compositeKey.attributes[1];
+
+                        // Get the actual participant
+                        const participantBytes = await ctx.stub.getState(`participant_${participantId}`);
+                        if (participantBytes && participantBytes.length > 0) {
+                            const participant = JSON.parse(participantBytes.toString());
+                            participants.push(participant);
+                        }
+                    } catch (e) {
+                        console.error(`[getParticipantsByRole] Error parsing participant: ${e.message}`);
+                        continue;
+                    }
                 }
             }
         } catch (err) {
-            console.error(`Error getting participants by role: ${err}`);
+            console.error(`[getParticipantsByRole] Error: ${err}`);
+            throw new Error(`Failed to get participants by role: ${err.message}`);
         }
 
         return JSON.stringify(participants);
@@ -1130,6 +1173,27 @@ class ProductTrace extends Contract {
     }
 
     // Helper functions
+
+    // Extract userID from certificate DN
+    getUserId(ctx) {
+        try {
+            const clientId = ctx.clientIdentity.getID();
+            // clientId format: x509::/OU=org1/OU=client/OU=department1/CN=farmer01::/C=US/ST=.../CN=ca...
+
+            // Extract CN (Common Name) which contains the userID
+            const cnMatch = clientId.match(/CN=([^/:]+)/);
+            if (cnMatch && cnMatch[1]) {
+                return cnMatch[1];
+            }
+
+            // Fallback to full ID if CN extraction fails
+            console.log('Warning: Could not extract CN from client ID, using full ID');
+            return clientId;
+        } catch (error) {
+            console.log('Error extracting user ID:', error.message);
+            return 'unknown';
+        }
+    }
 
     async getCallerRole(ctx) {
         try {
