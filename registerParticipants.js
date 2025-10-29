@@ -25,6 +25,18 @@ const colors = {
 // Default participants to register
 const DEFAULT_PARTICIPANTS = [
     {
+        id: 'admin',
+        role: 'admin',
+        admin: 'farmerAdmin',
+        org: 'Org1',
+        details: {
+            name: 'WyldTrace Admin',
+            location: 'Headquarters',
+            contact: 'admin@wyldtrace.com',
+            description: 'System administrator with full access'
+        }
+    },
+    {
         id: 'farmer01',
         role: 'farmer',
         admin: 'farmerAdmin',
@@ -42,10 +54,22 @@ const DEFAULT_PARTICIPANTS = [
         admin: 'farmerAdmin',
         org: 'Org1',
         details: {
-            name: 'Sunrise Orchards',
+            name: 'Sunny Fields Farm',
+            location: 'Iowa, USA',
+            contact: 'contact@sunnyfields.com',
+            description: 'Grain producer specializing in wheat and corn'
+        }
+    },
+    {
+        id: 'farmer03',
+        role: 'farmer',
+        admin: 'farmerAdmin',
+        org: 'Org1',
+        details: {
+            name: 'Fresh Greens Co',
             location: 'Oregon, USA',
-            contact: 'info@sunriseorchards.com',
-            description: 'Premium fruit producer - apples, pears, and berries'
+            contact: 'info@freshgreens.com',
+            description: 'Lettuce and leafy greens producer'
         }
     },
     {
@@ -54,9 +78,9 @@ const DEFAULT_PARTICIPANTS = [
         admin: 'manufacturerAdmin',
         org: 'Org2',
         details: {
-            name: 'Fresh Foods Processing Inc',
-            location: 'Texas, USA',
-            contact: 'ops@freshfoods.com',
+            name: 'Food Processing Inc',
+            location: 'California, USA',
+            contact: 'contact@foodprocessing.com',
             description: 'Food processing and packaging facility'
         }
     },
@@ -78,9 +102,9 @@ const DEFAULT_PARTICIPANTS = [
         admin: 'manufacturerAdmin',
         org: 'Org2',
         details: {
-            name: 'Global Supply Chain Solutions',
-            location: 'New York, USA',
-            contact: 'logistics@globalsupply.com',
+            name: 'Fast Distribution Co',
+            location: 'Texas, USA',
+            contact: 'info@fastdist.com',
             description: 'International food distribution network'
         }
     },
@@ -90,10 +114,10 @@ const DEFAULT_PARTICIPANTS = [
         admin: 'manufacturerAdmin',
         org: 'Org2',
         details: {
-            name: 'FreshMart Supermarkets',
-            location: 'Chicago, USA',
-            contact: 'purchasing@freshmart.com',
-            description: 'Retail supermarket chain - 500+ locations'
+            name: 'Fresh Market Store',
+            location: 'New York, USA',
+            contact: 'sales@freshmarket.com',
+            description: 'Retail supermarket chain'
         }
     },
     {
